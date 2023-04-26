@@ -23,6 +23,8 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 use verbb\supertable\fields\SuperTableField;
+use benf\neo\Field as NeoField;
+use benf\neo\elements\Block as NeoBlock;
 use yii\base\ErrorException;
 
 class ReadTimeTwigExtension extends AbstractExtension
@@ -61,8 +63,8 @@ class ReadTimeTwigExtension extends AbstractExtension
 
             foreach ($element->getFieldLayout()->getCustomFields() as $field) {
                 try {
-                    // If field is a matrix then loop through fields in block
-                    if ($field instanceof Matrix) {
+                    // If field is a matrix or neo then loop through fields in block
+                    if ($field instanceof Matrix || $field instanceof NeoField) {
                         foreach($element->getFieldValue($field->handle)->all() as $block) {
                             $blockFields = $block->getFieldLayout()->getFields();
 
@@ -77,7 +79,7 @@ class ReadTimeTwigExtension extends AbstractExtension
                             $blockFields = $block->getFieldLayout()->getFields();
 
                             foreach ($blockFields as $blockField) {
-                                if ($blockField instanceof Matrix) {
+                                if ($blockField instanceof Matrix || $blockFields instanceof NeoField) {
                                     foreach($block->getFieldValue($blockField->handle)->all() as $matrix) {
                                         $matrixFields = $matrix->getFieldLayout()->getFields();
 
@@ -104,11 +106,11 @@ class ReadTimeTwigExtension extends AbstractExtension
                 }
             }
         } elseif(is_array($element)) {
-            // Provided value is a matrix field
-            Craft::info('matrix field provided', 'readtime');
+            // Provided value is a matrix or neo field
+            Craft::info('matrix or neo field provided', 'readtime');
 
             foreach ($element as $block) {
-                if ($block instanceof MatrixBlock) {
+                if ($block instanceof MatrixBlock || $block instanceof NeoBlock) {
                     $blockFields = $block->getFieldLayout()->getCustomFields();
 
                     foreach ($blockFields as $blockField) {
